@@ -3,7 +3,7 @@ import 'package:rent/service/apiresponse.dart';
 import 'package:rent/service/baseapiservices.dart';
 
 class UserLoginServices {
-  static String endpoint = Constanta.baseApiUrl + "/auth.php";
+  static String endpoint = Constanta.baseApiUrl + "login/auth.php";
   static Future<ApiResponse> authentication(dynamic requestBody) async {
     ApiResponse apiResponse;
     await BaseApiService.sendPostRequest(endpoint, "", requestBody)

@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'package:rent/page/showroom.dart';
-//import 'package:rent/service/auth_services.dart';
 import 'package:rent/models/usermodel.dart';
 import 'package:rent/service/apiresponse.dart';
 import 'package:rent/service/userloginservices.dart';
 import 'package:flutter/material.dart';
-//import './registration_screen.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
-//import 'package:provider/provider.dart';
+import './registration_screen.dart';
 import './forgot_password_screen.dart';
 
 class LoginPage extends StatefulWidget {
@@ -19,7 +16,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   var _emailController = new TextEditingController();
   var _passwordController = new TextEditingController();
-  final _formkey = GlobalKey<FormState>();
   ApiResponse apiResponse;
 
   @override
@@ -61,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
     var requestBody = jsonEncode(usermodel.toJson());
     UserLoginServices.authentication(requestBody).then((value) {
       final result = value;
+      print(result.toString());
       if (result.success == true && result.code == 200) {
         Navigator.push(
           context,
@@ -70,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
         _showMyDialog();
       }
     }).catchError((error) {
-      // String err = error.toString();
+      print(error.toString());
     });
     print(requestBody);
   }
@@ -138,8 +135,7 @@ class _LoginPageState extends State<LoginPage> {
           child:
           Text('LOGIN', style: TextStyle(color: Colors.white, fontSize: 20)),
         onPressed: () {
-          //await AuthServices.signUp(_emailController.text, _passwordController.text);
-          return Showroom();
+         authentication();
         },
       ),
     );
@@ -167,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) {
-            return Showroom();
+            return RegistrationPage();
           }),
         );
       },
@@ -196,7 +192,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
             Center(
               child: ListView(
-                key: _formkey,
                 shrinkWrap: true,
                 padding: EdgeInsets.only(left: 24.0, right: 24.0, top: 250),
                 children: <Widget>[

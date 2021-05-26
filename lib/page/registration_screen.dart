@@ -1,30 +1,45 @@
+import 'dart:convert';
+import 'package:rent/models/usermodel.dart';
+import 'package:rent/service/apiresponse.dart';
+import 'package:rent/service/registrationservices.dart';
 import 'package:flutter/material.dart';
-import './login_screen.dart';
+import 'package:rent/page/login_screen.dart';
 
-
-void main() {
-  runApp(RegisterPage());
+class RegistrationPage extends StatefulWidget {
+  static String tag = 'registration-page';
+  @override
+  _RegistrationPageState createState() => new _RegistrationPageState();
 }
 
-class RegisterPage extends StatelessWidget {
-  // This widget is the root of your application.
+class _RegistrationPageState extends State<RegistrationPage> {
+  var _nameController = new TextEditingController();
+  var _emailController = new TextEditingController();
+  var _passwordController = new TextEditingController();
+  final _formkey = GlobalKey<FormState>();
+  ApiResponse apiResponse;
+
   @override
-  Widget build(BuildContext context) {
-    return RegisterPageScreen();
+  void initState() {
+    super.initState();
   }
-}
 
-class RegisterPageScreen extends StatefulWidget {
-  RegisterPageScreen({Key key, this.title}) : super(key: key);
+  void sentRequestInsertDataUser() {
+    Usermodel usermodel = new Usermodel(
+        name: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text);
 
-  final String title;
-
-  @override
-  _RegisterPageScreenScreen createState() => _RegisterPageScreenScreen();
-}
-
-class _RegisterPageScreenScreen extends State<RegisterPageScreen> {
-
+    var requestBody = jsonEncode(usermodel.toJson());
+    UserRegistrationServices.sentRequestInsertDataUser(requestBody)
+        .then((value) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    }).catchError((error) {
+    });
+    print(requestBody);
+  }
   bool _showPassword = false;
   void _togglevisibility() {
     setState(() {
@@ -32,196 +47,224 @@ class _RegisterPageScreenScreen extends State<RegisterPageScreen> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: Colors.blueAccent, //change your color here
+    final name = TextFormField(
+      controller: _nameController,
+      keyboardType: TextInputType.emailAddress,
+      autofocus: false,
+      decoration: InputDecoration(
+        hintText: 'Full Name',
+        prefixIcon: Icon(
+          Icons.perm_identity_sharp,
+          color: Colors.lightBlue,
         ),
-        backgroundColor: Colors.white,
-        //leading: Icon(Icons.keyboard_arrow_left),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black, width: 1.0),
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  new Center(
-                    child: new Image.asset(
-                      "image/splash.png",
-                      height: 70.0,
-                      width: 200.0,
-                    ),
-                  ),
-                  Center(
-                      child: Text('SignUp Now', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),)
-                  ),
-                  Center(
-                    child: Text('Kindly Fill all the details to get started', style: TextStyle(fontSize: 13, color: Colors.grey[600]),),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(top: 70, left: 40, right: 40 ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: new TextFormField(
-                            keyboardType: TextInputType.text,
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Username Field must not be empty';
-                              }
-                              return null;
-                            },
-                            decoration: new InputDecoration(
-                              labelText: 'Username',
-                              border: OutlineInputBorder(),
-                              contentPadding: new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                            ),
-                            textInputAction: TextInputAction.next,
-                            onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(), // move focus to next
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: new TextFormField(
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Email Field must not be empty';
-                              }
-                              return null;
-                            },
-                            decoration: new InputDecoration(
-                              labelText: 'Email',
-                              border: OutlineInputBorder(),
-                              contentPadding: new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                            ),
-                            textInputAction: TextInputAction.next,
-                            onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(), // move focus to next
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextFormField(
-                            textInputAction: TextInputAction.next,
-                            onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(), // move focus to next
-                            obscureText: !_showPassword,
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Password Field must not be empty';
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              hintText: "Password",
-                              border: OutlineInputBorder(),
-                              contentPadding: new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+    );
 
-                              suffixIcon: GestureDetector(
-                                onTap: () {
-                                  _togglevisibility();
-                                },
-                                child: Container(
-                                  height: 50,
-                                  width: 70,
-                                  padding: EdgeInsets.symmetric(vertical: 13),
-                                  child: Center(
-                                    child: Text(
-                                      _showPassword ? "Hide" : "Show",
-                                      style: TextStyle(color: Colors.blueAccent, fontSize: 15, fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30)
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30)
-                            ),
-                            child: FlatButton(
-                              minWidth: MediaQuery.of(context).size.width,
-                              height: 50,
-                              child: Text('Register'),
-                              color: Colors.blueAccent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                return LoginPage();
-                              },
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                           onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(30),
-                            child: Text('Have an Account? Login'),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(left: 40, right: 40, bottom: 40,),
-                          child: Text('or connect with'),
-                        ),
-                        Container(
-                          padding: EdgeInsets.only( left: 30, right: 30),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Container(
-                                  child: CircleAvatar(
-                                    backgroundImage: AssetImage('image/facebook.png'),
-                                  ),
-                                ),
-                                Container(
-                                  color: Colors.white,
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    backgroundImage: AssetImage('image/google.png'),
-                                  ),
-                                ),
-                                Container(
-                                  child: CircleAvatar(
-                                    backgroundImage: AssetImage('image/twitter.png'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  )
-                ],
+    final email = TextFormField(
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      autofocus: false,
+      decoration: InputDecoration(
+        hintText: 'Email',
+        prefixIcon: Icon(
+          Icons.email,
+          color: Colors.lightBlue,
+        ),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black, width: 1.0),
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+      ),
+    );
+
+    final password = TextFormField(
+      controller: _passwordController,
+      autofocus: false,
+      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+      obscureText:!_showPassword,
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Password Field must not be empty';
+        }
+        return null;
+        },
+      decoration: InputDecoration(
+        hintText: 'Password',
+        prefixIcon: Icon(
+          Icons.security,
+          color: Colors.lightBlue,
+        ),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black, width: 1.0),
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+      suffixIcon: GestureDetector(
+        onTap: () {
+          _togglevisibility();
+        },
+        child: Container(
+          height: 50,
+          width: 70,
+          padding: EdgeInsets.symmetric(vertical: 13),
+          child: Center(
+            child: Text(
+              _showPassword ? "Hide" : "Show",
+              style: TextStyle(color: Colors.blueAccent, fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+      ),
+      ),
+    );
+
+    final validasipassword = TextFormField(
+      autofocus: false,
+      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+      obscureText:!_showPassword,
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Password Field must not be empty';
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+        hintText: 'Confirm Password',
+        prefixIcon: Icon(
+          Icons.security,
+          color: Colors.lightBlue,
+        ),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black, width: 1.0),
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+        suffixIcon: GestureDetector(
+          onTap: () {
+            _togglevisibility();
+          },
+          child: Container(
+            height: 50,
+            width: 70,
+            padding: EdgeInsets.symmetric(vertical: 13),
+            child: Center(
+              child: Text(
+                _showPassword ? "Hide" : "Show",
+                style: TextStyle(color: Colors.blueAccent, fontSize: 15, fontWeight: FontWeight.bold),
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
-  }
 
+    final loginButton = Padding(
+      padding: EdgeInsets.symmetric(vertical: 16.0),
+      child: RaisedButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        onPressed: () {
+          sentRequestInsertDataUser();
+        },
+        padding: EdgeInsets.all(12),
+        color: Colors.lightBlue,
+        child: Text('Create Account',
+            style: TextStyle(color: Colors.black, fontSize: 20)),
+      ),
+    );
+
+    // ignore: non_constant_identifier_names
+
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: Stack(
+          children: <Widget>[
+            Container(
+              color: Colors.white,
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 50, left: 100),
+              child: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                radius: 90.0,
+                child: Image.asset(
+                  'image/splash.png',
+                  height: 300,
+                  width: 600,
+                ),
+              ),
+            ),
+            Container(
+                padding: EdgeInsets.only(left: 140, right: 80, top: 190,),
+                child: Text('SignUp Now', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),)
+            ),
+            Container(
+              padding: EdgeInsets.only(left: 80, right: 40, top: 220,),
+              child: Text('Kindly Fill all the details to get started', style: TextStyle(fontSize: 13, color: Colors.grey[600]),),
+            ),
+            Center(
+              child: ListView(
+                key: _formkey,
+                shrinkWrap: true,
+                padding: EdgeInsets.only(left: 24.0, right: 24.0, top: 200),
+                children: <Widget>[
+                  name,
+                  SizedBox(height: 15.0),
+                  email,
+                  SizedBox(height: 15.0),
+                  password,
+                  SizedBox(height: 15.0),
+                  validasipassword,
+                  SizedBox(height: 20.0),
+                  loginButton,
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(left: 130, right: 100, top: 620,),
+              child: Text('or connect with'),
+            ),
+            Container(
+              padding: EdgeInsets.only( left: 30, right: 30, top:660),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                      child: CircleAvatar(
+                        backgroundImage: AssetImage('image/facebook.png'),
+                      ),
+                    ),
+                    Container(
+                      color: Colors.white,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        backgroundImage: AssetImage('image/google.png'),
+                      ),
+                    ),
+                    Container(
+                      child: CircleAvatar(
+                        backgroundImage: AssetImage('image/twitter.png'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
 }

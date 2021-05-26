@@ -3,7 +3,7 @@ import 'package:rent/service/apiresponse.dart';
 import 'package:rent/service/baseapiservices.dart';
 
 class UserRegistrationServices {
-  static String endpoint = Constanta.baseApiUrl + "/registration/insert.php";
+  static String endpoint = Constanta.baseApiUrl + "registration/insert.php";
 
   static Future<ApiResponse> sentRequestInsertDataUser(
       dynamic requestBody) async {
