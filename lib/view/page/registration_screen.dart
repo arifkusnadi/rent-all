@@ -1,9 +1,7 @@
-import 'dart:convert';
-import 'package:rent/models/usermodel.dart';
 import 'package:rent/service/apiresponse.dart';
-import 'package:rent/service/registrationservices.dart';
 import 'package:flutter/material.dart';
 import 'package:rent/page/login_screen.dart';
+import 'package:rent/utils/context_utils.dart';
 
 class RegistrationPage extends StatefulWidget {
   static String tag = 'registration-page';
@@ -23,23 +21,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
     super.initState();
   }
 
-  void sentRequestInsertDataUser() {
-    Usermodel usermodel = new Usermodel(
-        name: _nameController.text,
-        email: _emailController.text,
-        password: _passwordController.text);
-
-    var requestBody = jsonEncode(usermodel.toJson());
-    UserRegistrationServices.sentRequestInsertDataUser(requestBody)
-        .then((value) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
-    }).catchError((error) {
-    });
-    print(requestBody);
+  void sentRequestInsertDataUser() async {
+    var name = _nameController.text;
+    var email = _emailController.text;
+    var password = _passwordController.text;
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      context.showSnacbar("please fill all fields");
+    } else {
+      var result = await context.autProvider
+          .register(_nameController.text, password, name);
+      context.showSnacbar(result.message ?? "cannot process your request");
+      if (result.result == 1) {
+        context.pushTo(LoginPage());
+      }
+    }
   }
+
   bool _showPassword = false;
   void _togglevisibility() {
     setState(() {
@@ -91,13 +88,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
       controller: _passwordController,
       autofocus: false,
       onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-      obscureText:!_showPassword,
+      obscureText: !_showPassword,
       validator: (value) {
         if (value.isEmpty) {
           return 'Password Field must not be empty';
         }
         return null;
-        },
+      },
       decoration: InputDecoration(
         hintText: 'Password',
         prefixIcon: Icon(
@@ -110,29 +107,32 @@ class _RegistrationPageState extends State<RegistrationPage> {
           borderRadius: BorderRadius.circular(20.0),
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-      suffixIcon: GestureDetector(
-        onTap: () {
-          _togglevisibility();
-        },
-        child: Container(
-          height: 50,
-          width: 70,
-          padding: EdgeInsets.symmetric(vertical: 13),
-          child: Center(
-            child: Text(
-              _showPassword ? "Hide" : "Show",
-              style: TextStyle(color: Colors.blueAccent, fontSize: 15, fontWeight: FontWeight.bold),
+        suffixIcon: GestureDetector(
+          onTap: () {
+            _togglevisibility();
+          },
+          child: Container(
+            height: 50,
+            width: 70,
+            padding: EdgeInsets.symmetric(vertical: 13),
+            child: Center(
+              child: Text(
+                _showPassword ? "Hide" : "Show",
+                style: TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
 
     final validasipassword = TextFormField(
       autofocus: false,
       onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-      obscureText:!_showPassword,
+      obscureText: !_showPassword,
       validator: (value) {
         if (value.isEmpty) {
           return 'Password Field must not be empty';
@@ -162,7 +162,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
             child: Center(
               child: Text(
                 _showPassword ? "Hide" : "Show",
-                style: TextStyle(color: Colors.blueAccent, fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -208,12 +211,25 @@ class _RegistrationPageState extends State<RegistrationPage> {
               ),
             ),
             Container(
-                padding: EdgeInsets.only(left: 140, right: 80, top: 190,),
-                child: Text('SignUp Now', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),)
-            ),
+                padding: EdgeInsets.only(
+                  left: 140,
+                  right: 80,
+                  top: 190,
+                ),
+                child: Text(
+                  'SignUp Now',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                )),
             Container(
-              padding: EdgeInsets.only(left: 80, right: 40, top: 220,),
-              child: Text('Kindly Fill all the details to get started', style: TextStyle(fontSize: 13, color: Colors.grey[600]),),
+              padding: EdgeInsets.only(
+                left: 80,
+                right: 40,
+                top: 220,
+              ),
+              child: Text(
+                'Kindly Fill all the details to get started',
+                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+              ),
             ),
             Center(
               child: ListView(
@@ -234,11 +250,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
               ),
             ),
             Container(
-              padding: EdgeInsets.only(left: 130, right: 100, top: 620,),
+              padding: EdgeInsets.only(
+                left: 130,
+                right: 100,
+                top: 620,
+              ),
               child: Text('or connect with'),
             ),
             Container(
-              padding: EdgeInsets.only( left: 30, right: 30, top:660),
+              padding: EdgeInsets.only(left: 30, right: 30, top: 660),
               child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

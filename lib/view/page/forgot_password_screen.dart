@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './login_screen.dart';
+import '../screen/login_screen.dart';
 
 class ForgotpasswordPage extends StatefulWidget {
   static String tag = 'ForgotPassword-page';
@@ -19,10 +19,10 @@ class _ForgotpasswordPageState extends State<ForgotpasswordPage> {
           Icons.email,
           color: Colors.blueAccent,
         ),
-        contentPadding: new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+        contentPadding:
+            new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
         focusedBorder: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.blueAccent, width: 1.0),
-
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
       ),
@@ -30,18 +30,17 @@ class _ForgotpasswordPageState extends State<ForgotpasswordPage> {
 
     final nextButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: RaisedButton(
+      child: MaterialButton(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
         onPressed: () {},
         padding: EdgeInsets.all(12),
         color: Colors.blueAccent,
-
       ),
     );
 
-    final loginLabel = FlatButton(
+    final loginLabel = MaterialButton(
       child: Text(
         'EMAIL ME',
         style: TextStyle(color: Colors.white, fontSize: 16),
@@ -88,7 +87,6 @@ class _ForgotpasswordPageState extends State<ForgotpasswordPage> {
                 ),
               ),
             ),
-
             Padding(
                 padding: const EdgeInsets.only(top: 330, left: 30),
                 child: Text(
@@ -106,7 +104,6 @@ class _ForgotpasswordPageState extends State<ForgotpasswordPage> {
                 ],
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.only(top: 535),
               child: ListView(

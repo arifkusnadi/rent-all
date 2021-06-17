@@ -1,11 +1,9 @@
-import 'dart:convert';
-import 'package:rent/page/showroom.dart';
-import 'package:rent/models/usermodel.dart';
 import 'package:rent/service/apiresponse.dart';
-import 'package:rent/service/userloginservices.dart';
 import 'package:flutter/material.dart';
-import './registration_screen.dart';
-import './forgot_password_screen.dart';
+import 'package:rent/view/screen/main_screen.dart';
+import '../page/registration_screen.dart';
+import '../page/forgot_password_screen.dart';
+import 'package:rent/utils/context_utils.dart';
 
 class LoginPage extends StatefulWidget {
   static String tag = 'login-page';
@@ -50,26 +48,17 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void authentication() {
-    Usermodel usermodel = new Usermodel(
-        email: _emailController.text, password: _passwordController.text);
-
-    var requestBody = jsonEncode(usermodel.toJson());
-    UserLoginServices.authentication(requestBody).then((value) {
-      final result = value;
-      print(result.toString());
-      if (result.success == true && result.code == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Showroom()),
-        );
-      } else {
-        _showMyDialog();
-      }
-    }).catchError((error) {
-      print(error.toString());
-    });
-    print(requestBody);
+  void authentication() async {
+    var result = await context.autProvider
+        .login(_emailController.text, _passwordController.text);
+    if (result.result == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MainScreen()),
+      );
+    } else {
+      _showMyDialog();
+    }
   }
 
   // void sendRequestGetDataUserLogin() {
@@ -97,7 +86,8 @@ class _LoginPageState extends State<LoginPage> {
           Icons.email,
           color: Colors.blueAccent,
         ),
-        contentPadding: new EdgeInsets.symmetric(vertical: 25.0, horizontal: 10.0),
+        contentPadding:
+            new EdgeInsets.symmetric(vertical: 25.0, horizontal: 10.0),
         focusedBorder: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.blueAccent, width: 1.0),
         ),
@@ -115,10 +105,10 @@ class _LoginPageState extends State<LoginPage> {
           Icons.security,
           color: Colors.blueAccent,
         ),
-        contentPadding: new EdgeInsets.symmetric(vertical: 25.0, horizontal: 10.0),
+        contentPadding:
+            new EdgeInsets.symmetric(vertical: 25.0, horizontal: 10.0),
         focusedBorder: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.blueAccent, width: 1.0),
-
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
       ),
@@ -126,21 +116,27 @@ class _LoginPageState extends State<LoginPage> {
 
     final loginButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: RaisedButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(Colors.blueAccent),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+          ),
+          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+            EdgeInsets.all(12),
+          ),
         ),
-          padding: EdgeInsets.all(12),
-          color: Colors.blueAccent,
-          child:
-          Text('LOGIN', style: TextStyle(color: Colors.white, fontSize: 20)),
+        child:
+            Text('LOGIN', style: TextStyle(color: Colors.white, fontSize: 20)),
         onPressed: () {
-         authentication();
+          authentication();
         },
       ),
     );
 
-    final forgotLabel = FlatButton(
+    final forgotLabel = MaterialButton(
       child: Text(
         'Forgot password?',
         style: TextStyle(color: Colors.blueAccent),
@@ -155,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     // ignore: non_constant_identifier_names
-    final SignupLabel = FlatButton(
+    final SignupLabel = MaterialButton(
       child: Text(
         "Don’t have account?, Create a new account",
         style: TextStyle(color: Colors.blueAccent),
@@ -204,7 +200,6 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.only(top: 600, left: 30),
               child: ListView(

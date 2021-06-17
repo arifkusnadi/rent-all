@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rent/provider/auth_provider.dart';
+import 'package:rent/provider/main_provider.dart';
+import 'package:rent/view/screen/splash_screen.dart';
 //import 'package:rent/service/auth_services.dart';
-import './page/splash_screen.dart';
 
 void main() => runApp(new Myapp());
 
 class Myapp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      //value: AuthServices.firebaseUserStream,
-      //child: MaterialApp(
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (ctx) => AuthProvider()),
+        ChangeNotifierProvider(create: (ctx) => MainProvider()),
+      ],
+      child: MaterialApp(
+        //value: AuthServices.firebaseUserStream,
+        //child: MaterialAp
         debugShowCheckedModeBanner: false,
         title: 'SplasScreen',
         theme: ThemeData(),
-        home: new SplashScreen(),
-
+        home: SplashScreen(),
+      ),
     );
   }
 }
-
