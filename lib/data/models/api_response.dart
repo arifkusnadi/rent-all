@@ -18,13 +18,19 @@ class ApiResponse {
 
   Data data;
   String message;
-  int result;
+  bool result;
 
-  factory ApiResponse.fromJson(Map<String, dynamic> json) => ApiResponse(
-        data: Data.fromJson(json["data"]),
-        message: json["message"],
-        result: json["result"],
-      );
+  factory ApiResponse.fromJson(Map<String, dynamic> json) =>
+      json["data"] == null
+          ? ApiResponse(
+              message: json["message"],
+              result: json["result"],
+            )
+          : ApiResponse(
+              data: Data.fromJson(json["data"]),
+              message: json["message"],
+              result: json["result"],
+            );
 
   Map<String, dynamic> toJson() => {
         "data": data.toJson(),

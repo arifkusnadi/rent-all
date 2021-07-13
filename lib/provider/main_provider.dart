@@ -11,22 +11,22 @@ class MainProvider extends ChangeNotifier {
 
   final NetworkService networkService = NetworkService();
   List<Book> _historyBook = [];
-  List<Book> get historyBmi => _historyBook;
+  List<Book> get historyBook => _historyBook;
   List<Product> _products = [];
-  List<Product> get exercises => _products;
+  List<Product> get products => _products;
   loadAllData() async {
     await loadHistoryBook();
     await loadProducts();
   }
 
-  loadHistoryBook() async {
+  Future loadHistoryBook() async {
     var result = await networkService.getHistoryBooking();
     result.sort((a, b) => b.date.compareTo(a.date));
     _historyBook = result;
     notifyListeners();
   }
 
-  loadProducts() async {
+  Future<void> loadProducts() async {
     var itemList = await networkService.getProducts();
     _products = itemList;
     notifyListeners();

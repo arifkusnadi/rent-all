@@ -1,25 +1,25 @@
-import './car_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:rent/data/models/products.dart';
+import 'package:rent/view/components/car_widget.dart';
 import './constants.dart';
 import './data.dart';
-import './BookCar.dart';
+import 'BookCar.dart';
+import 'package:rent/utils/context_utils.dart';
 
 class AvailableCars extends StatefulWidget {
+  final List<Product> products;
+
+  const AvailableCars({Key key, this.products}) : super(key: key);
   @override
   _AvailableCarsState createState() => _AvailableCarsState();
 }
 
 class _AvailableCarsState extends State<AvailableCars> {
-
-  List<Filter> filters = getFilterList();
-  Filter selectedFilter;
+  SortType _sortType = SortType.Best_Match;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      selectedFilter = filters[0];
-    });
   }
 
   @override
@@ -33,70 +33,61 @@ class _AvailableCarsState extends State<AvailableCars> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
                 },
                 child: Container(
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(15),
+                    width: 45,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(15),
+                      ),
+                      border: Border.all(
+                        color: Colors.grey[300],
+                        width: 1,
+                      ),
                     ),
-                    border: Border.all(
-                      color: Colors.grey[300],
-                      width: 1,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.keyboard_arrow_left,
-                    color: Colors.black,
-                    size: 28,
-                  )
-                ),
+                    child: Icon(
+                      Icons.keyboard_arrow_left,
+                      color: Colors.black,
+                      size: 28,
+                    )),
               ),
-
               SizedBox(
                 height: 16,
               ),
-
               Text(
-                "Available Cars (" + getCarList().length.toString() + ")",
+                "Available Cars (" + widget.products.length.toString() + ")",
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
-              SizedBox(
-                height: 16,
-              ),
-
               Expanded(
                 child: GridView.count(
                   physics: BouncingScrollPhysics(),
-                  childAspectRatio: 1 / 1.55,
+                  childAspectRatio: 1 / 2,
                   crossAxisCount: 2,
-                  crossAxisSpacing: 15,
-                  mainAxisSpacing: 15,
-                  children: getCarList().map((item) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => BookCarPage(car: item)),
-                        );
-                      },
-                      child: buildCar(item, null)
-                    );
-                  }).toList(),
+                  children: sort(widget.products)
+                      .map<Widget>(
+                        (e) => SingleChildScrollView(
+                          child: InkWell(
+                            onTap: () => context.pushTo(
+                              BookCarPage(
+                                car: e,
+                              ),
+                            ),
+                            child: ProductContainer(product: e),
+                          ),
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
-
             ],
           ),
         ),
@@ -106,11 +97,30 @@ class _AvailableCarsState extends State<AvailableCars> {
         decoration: BoxDecoration(
           color: Colors.white,
         ),
-        child: Row(
+        child: ListView(
+          scrollDirection: Axis.horizontal,
           children: [
-            buildFilterIcon(),
             Row(
-              children: buildFilters(),
+              children: [
+                const IconSort(),
+                Row(
+                  children: SortType.values
+                      .map<Widget>(
+                        (e) => InkWell(
+                          onTap: () => setState(() {
+                            _sortType = e;
+                          }),
+                          child: Chip(
+                            backgroundColor: _sortType == e
+                                ? kPrimaryColor.withOpacity(0.5)
+                                : Colors.white,
+                            label: Text(e.toString().replaceAll("_", " ")),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ),
           ],
         ),
@@ -118,7 +128,30 @@ class _AvailableCarsState extends State<AvailableCars> {
     );
   }
 
-  Widget buildFilterIcon(){
+  sort(List<Product> productlist) {
+    var _productList = productlist;
+    switch (_sortType) {
+      case SortType.Best_Match:
+        return widget.products;
+        break;
+      case SortType.Highest_Price:
+        _productList.sort((b, a) => a.price.compareTo(b.price));
+        break;
+      case SortType.Lowest_Price:
+        _productList.sort((a, b) => a.price.compareTo(b.price));
+        break;
+    }
+    return _productList;
+  }
+}
+
+class IconSort extends StatelessWidget {
+  const IconSort({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: 50,
       height: 50,
@@ -138,33 +171,6 @@ class _AvailableCarsState extends State<AvailableCars> {
       ),
     );
   }
-
-  List<Widget> buildFilters(){
-    List<Widget> list = [];
-    for (var i = 0; i < filters.length; i++) {
-      list.add(buildFilter(filters[i]));
-    }
-    return list;
-  }
-
-  Widget buildFilter(Filter filter){
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedFilter = filter;
-        });
-      },
-      child: Padding(
-        padding: EdgeInsets.only(right: 16),
-        child: Text(
-          filter.name,
-          style: TextStyle(
-            color: selectedFilter == filter ? kPrimaryColor : Colors.grey[300],
-            fontSize: 16,
-            fontWeight: selectedFilter == filter ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
 }
+
+enum SortType { Best_Match, Highest_Price, Lowest_Price }

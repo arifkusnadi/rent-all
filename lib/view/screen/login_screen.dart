@@ -1,7 +1,7 @@
 import 'package:rent/service/apiresponse.dart';
 import 'package:flutter/material.dart';
 import 'package:rent/view/screen/main_screen.dart';
-import '../page/registration_screen.dart';
+import 'registration_screen.dart';
 import '../page/forgot_password_screen.dart';
 import 'package:rent/utils/context_utils.dart';
 
@@ -51,7 +51,8 @@ class _LoginPageState extends State<LoginPage> {
   void authentication() async {
     var result = await context.autProvider
         .login(_emailController.text, _passwordController.text);
-    if (result.result == 1) {
+    if (result.result ?? false) {
+      context.autProvider.loadAuthDetails();
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MainScreen()),
@@ -151,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     // ignore: non_constant_identifier_names
-    final SignupLabel = MaterialButton(
+    final signupLabel = MaterialButton(
       child: Text(
         "Don’t have account?, Create a new account",
         style: TextStyle(color: Colors.blueAccent),
@@ -172,7 +173,7 @@ class _LoginPageState extends State<LoginPage> {
             Container(
               color: Colors.white,
             ),
-            Image.asset('image/background_login.jp',
+            Image.asset('image/background_login.jpg',
                 fit: BoxFit.cover, width: 700),
             Padding(
               padding: EdgeInsets.only(top: 70, left: 100),
@@ -196,18 +197,11 @@ class _LoginPageState extends State<LoginPage> {
                   password,
                   SizedBox(height: 24.0),
                   loginButton,
+                  signupLabel,
                   forgotLabel,
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 600, left: 30),
-              child: ListView(
-                children: [
-                  SignupLabel,
-                ],
-              ),
-            )
           ],
         ));
   }

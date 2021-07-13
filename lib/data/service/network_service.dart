@@ -4,6 +4,7 @@ import 'package:rent/data/models/api_response.dart';
 
 import 'package:rent/data/models/book.dart';
 import 'package:rent/data/models/products.dart';
+import 'package:rent/data/models/review.dart';
 import 'package:rent/data/models/usermodel.dart';
 import 'package:rent/data/service/local_service.dart';
 
@@ -15,10 +16,13 @@ abstract class BaseService {
   Future<ApiResponse> makeOrder(Book newBooking);
   Future<ApiResponse> updateProfile(String email, String password, String nama);
   Future<Usermodel> getProfile();
+  Future<ApiResponse> addReview(Review review);
+  Future<List<Review>> getReview(int idproducts);
   static const exerciseEndpoint = "/products";
   static const loginEndpoint = "/auth/login";
   static const registerEndpoint = "/auth/register";
   static const profileEndpoint = "/profile";
+  static const reviewEndpoiny = "/review";
 }
 
 class NetworkService extends BaseService {
@@ -66,8 +70,8 @@ class NetworkService extends BaseService {
   @override
   Future<Usermodel> getProfile() async {
     int id = (await _localService.getLoginDetails())["idUser"];
-    var response = await _dio
-        .get<Map<String, dynamic>>(BaseService.profileEndpoint + "/$id/detail");
+    var response = await _dio.get<Map<String, dynamic>>(
+        BaseService.profileEndpoint + "/$id/details");
     if (response.statusCode == 200) {
       return Usermodel.fromJson(response.data ?? {"message": "internal error"});
     }
@@ -84,6 +88,7 @@ class NetworkService extends BaseService {
       }),
     );
     if (response.statusCode == 200) {
+      debugPrint("${response.data}");
       return ApiResponse.fromJson(
           response.data ?? {"message": "internal error"});
     }
@@ -144,5 +149,38 @@ class NetworkService extends BaseService {
     }
 
     return ApiResponse(message: "internal error");
+  }
+
+  @override
+  Future<ApiResponse> addReview(Review review) async {
+    var data = review.toJson();
+    data.removeWhere((key, value) => value == null);
+
+    var formData = FormData.fromMap(data);
+    debugPrint(data.toString());
+    var response = await _dio.post<Map<String, dynamic>>(
+        BaseService.reviewEndpoiny + "/create",
+        data: formData);
+    if (response.statusCode == 200) {
+      return ApiResponse.fromJson(
+          response.data ?? {"message": "internal error"});
+    }
+    return ApiResponse(message: "internal error");
+  }
+
+  @override
+  Future<List<Review>> getReview(int idproducts) async {
+    List<Review> reviews = [];
+    var response =
+        await _dio.get<List>(BaseService.reviewEndpoiny + "/$idproducts");
+    if (response.statusCode == 200) {
+      print(response.data);
+      (response.data ?? [])
+          .map<Review>((e) => Review.fromJson(e))
+          .forEach((element) {
+        reviews.add(element);
+      });
+    }
+    return reviews;
   }
 }

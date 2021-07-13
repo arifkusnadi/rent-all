@@ -61,7 +61,7 @@ class _ForgotpasswordPageState extends State<ForgotpasswordPage> {
             Container(
               color: Colors.white,
             ),
-            Image.asset('image/background_login.jp',
+            Image.asset('image/background_login.jpg',
                 fit: BoxFit.cover, width: 700),
             Padding(
               padding: EdgeInsets.only(top: 70, left: 110),

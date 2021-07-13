@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rent/provider/auth_provider.dart';
 import 'package:rent/provider/main_provider.dart';
+import 'package:rent/provider/payment_provider.dart';
 
 extension ContextUtils on BuildContext {
+  PaymentProvider _getPaymentProvider() =>
+      Provider.of<PaymentProvider>(this, listen: false);
   MainProvider _getMainProvider() =>
       Provider.of<MainProvider>(this, listen: false);
   AuthProvider _getAuthProvider() =>
       Provider.of<AuthProvider>(this, listen: false);
+  MediaQueryData _getMediaQuery() => MediaQuery.of(this);
+  MediaQueryData get mediaQueryData => _getMediaQuery();
   showSnacbar(String msg) => ScaffoldMessenger.of(this).showSnackBar(
         SnackBar(
           content: Row(
@@ -24,4 +29,5 @@ extension ContextUtils on BuildContext {
 
   MainProvider get mainProvider => _getMainProvider();
   AuthProvider get autProvider => _getAuthProvider();
+  PaymentProvider get paymentProvider => _getPaymentProvider();
 }

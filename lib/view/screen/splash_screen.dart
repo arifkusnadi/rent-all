@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
-//import 'package:provider/provider.dart';
+import 'package:rent/utils/context_utils.dart';
+import 'package:rent/view/screen/main_screen.dart';
 import 'dart:async';
-import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   String get tag => null;
@@ -17,16 +16,20 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    Future.wait([
+      context.mainProvider.loadProducts(),
+    ]);
     startSplashScreen();
   }
 
   startSplashScreen() async {
     var duration = const Duration(seconds: 5);
     return Timer(duration, () {
+      
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) {
-          //Null firebaseUser;
-          return LoginPage();
+        MaterialPageRoute(builder: (context) {    
+      context.autProvider.loadAuthDetails();
+          return MainScreen();
         }),
       );
     });
@@ -41,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Container(
           color: Colors.white,
         ),
-        Image.asset('image/background_splashscreen.JP',
+        Image.asset('image/background_splashscreen.JPG',
             fit: BoxFit.cover, width: 700),
         Padding(
           padding: EdgeInsets.only(top: 300, left: 50),

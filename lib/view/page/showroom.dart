@@ -1,29 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:rent/view/page/booklistpage.dart';
+import 'package:rent/view/page/homepage.dart';
+import 'package:rent/view/page/profilepage.dart';
 import './constants.dart';
 import './data.dart';
-import './car_widget.dart';
-import './dealer_widget.dart';
-import './available_cars.dart';
-import './BookCar.dart';
+import 'package:rent/utils/context_utils.dart';
 
 class Showroom extends StatefulWidget {
   @override
   _ShowroomState createState() => _ShowroomState();
 }
 
-class _ShowroomState extends State<Showroom> {
-  List<NavigationItem> navigationItems = getNavigationItemList();
-  NavigationItem selectedItem;
-
+class _ShowroomState extends State<Showroom> with TickerProviderStateMixin {
   List<Car> cars = getCarList();
   List<Dealer> dealers = getDealerList();
+  TabController _tabController;
+  int currentTab = 0;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      selectedItem = navigationItems[0];
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        currentTab = _tabController.index;
+      });
     });
+    Future.wait([context.mainProvider.loadHistoryBook()]);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -35,7 +44,7 @@ class _ShowroomState extends State<Showroom> {
         elevation: 0,
         brightness: Brightness.light,
         title: Text(
-          "Car Rental",
+          "Rental",
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
@@ -44,338 +53,36 @@ class _ShowroomState extends State<Showroom> {
         ),
         centerTitle: false,
         actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(
-              Icons.menu,
-              color: Colors.black,
-              size: 28,
-            ),
-          )
+          // Padding(
+          //   padding: EdgeInsets.only(right: 16),
+          //   child: Icon(
+          //     Icons.menu,
+          //     color: Colors.black,
+          //     size: 28,
+          //   ),
+          // )
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-
-          Container(
-            padding: EdgeInsets.only(bottom: 10),
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search',
-                  hintStyle: TextStyle(fontSize: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide(
-                      width: 0, 
-                      style: BorderStyle.none,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  contentPadding: EdgeInsets.only(left: 30,),
-                  suffixIcon: Padding(
-                    padding: EdgeInsets.only(right: 24.0, left: 16.0),
-                    child: Icon(
-                      Icons.search,
-                      color: Colors.black,
-                      size: 24,
-                    ),
-                  ),
-                ),
+      body: TabBarView(controller: _tabController, children: [
+        HomePage(),
+        BookListPage(),
+        ProfilePage(),
+      ]),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentTab,
+        selectedItemColor: kPrimaryColor,
+        onTap: (value) => _tabController.animateTo(value),
+        items: [
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.home,
               ),
-            ),
-          ),
-
-          Expanded(
-            child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: Column(
-                  children: [
-
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-
-                          Text(
-                            "TOP DEALS",
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[400],
-                            ),
-                          ),
-
-                          Row(
-                            children: [
-
-                              Text(
-                                "view all",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: kPrimaryColor,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 8,
-                              ),
-
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 12,
-                                color: kPrimaryColor,
-                              ),
-
-                            ],
-                          ),
-
-                        ],
-                      ),
-                    ),
-
-                    Container(
-                      height: 280,
-                      child: ListView(
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        children: buildDeals(),
-                      ),
-                    ),
-
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AvailableCars()),
-                        );
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 16, right: 16, left: 16),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: kPrimaryColor,
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
-                            ),
-                          ),
-                          padding: EdgeInsets.all(24),
-                          height: 100,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-
-                                  Text(
-                                    "Available Cars",
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-
-                                  Text(
-                                    "Long term and short term",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-
-                                ],
-                              ),
-
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(15),
-                                  ),
-                                ),
-                                height: 50,
-                                width: 50,
-                                child: Center(
-                                  child: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: kPrimaryColor,
-                                  ),
-                                ),
-                              ),
-
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-
-                          Text(
-                            "TOP DEALERS",
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[400],
-                            ),
-                          ),
-
-                          Row(
-                            children: [
-
-                              Text(
-                                "view all",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: kPrimaryColor,
-                                ),
-                              ),
-
-                              SizedBox(
-                                width: 8,
-                              ),
-
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 12,
-                                color: kPrimaryColor,
-                              ),
-
-                            ],
-                          ),
-
-                        ],
-                      ),
-                    ),
-
-                    Container(
-                      height: 150,
-                      margin: EdgeInsets.only(bottom: 16),
-                      child: ListView(
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        children: buildDealers(),
-                      ),
-                    ),
-
-                  ],
-                ),
-              ),
-            ),
-          ),
-
+              label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today), label: "booking"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "profile"),
         ],
-      ),
-      bottomNavigationBar: Container(
-        height: 70,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          )
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: buildNavigationItems(),
-        ),
       ),
     );
   }
-
-  List<Widget> buildDeals(){
-    List<Widget> list = [];
-    for (var i = 0; i < cars.length; i++) {
-      list.add(
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => BookCarPage(car: cars[i])),
-            );
-          },
-          child: buildCar(cars[i], i)
-        )
-      );
-    }
-    return list;
-  }
-
-  List<Widget> buildDealers(){
-    List<Widget> list = [];
-    for (var i = 0; i < dealers.length; i++) {
-      list.add(buildDealer(dealers[i], i));
-    }
-    return list;
-  }
-
-  List<Widget> buildNavigationItems(){
-    List<Widget> list = [];
-    for (var navigationItem in navigationItems) {
-      list.add(buildNavigationItem(navigationItem));
-    }
-    return list;
-  }
-
-  Widget buildNavigationItem(NavigationItem item){
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedItem = item;
-        });
-      },
-      child: Container(
-        width: 50,
-        child: Stack(
-          children: <Widget>[
-
-            selectedItem == item 
-            ? Center(
-              child: Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: kPrimaryColorShadow,
-                ),
-              ),
-            )
-            : Container(),
-
-            Center(
-              child: Icon(
-                item.iconData,
-                color: selectedItem == item ? kPrimaryColor : Colors.grey[400],
-                size: 24,
-              ),
-            )
-
-          ],
-        ),
-      ),
-    );
-  }
-
 }

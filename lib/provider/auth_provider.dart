@@ -44,7 +44,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  loadAuthDetails() async {
+  Future<void> loadAuthDetails() async {
     var _result = await localService.getLoginStatus();
     if (_result) {
       var _details = await localService.getLoginDetails();
@@ -67,7 +67,7 @@ class AuthProvider extends ChangeNotifier {
   Future<ApiResponse> login(String mail, String password) async {
     try {
       var _result = await networkService.login(mail, password);
-      if (_result.result == 1) {
+      if (_result.result ?? false) {
         localService.saveLoginDetails(_result.data.email, _result.data.uid);
       }
       return _result;
@@ -84,7 +84,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       var _result = await networkService
           .register(Usermodel(name: name, email: email, password: password));
-      if (_result.result == 1) {
+      if (_result.result ?? false) {
         localService.saveLoginDetails(_result.data.email, _result.data.uid);
       }
       return _result;

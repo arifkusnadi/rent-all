@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:rent/data/models/products.dart';
+
 List<Book> bookFromJson(String str) =>
     List<Book>.from(json.decode(str).map((x) => Book.fromJson(x)));
 
@@ -12,87 +14,66 @@ String bookToJson(List<Book> data) =>
 
 class Book {
   Book({
-    this.brand,
     this.date,
-    this.details,
     this.idBooking,
     this.idProduct,
-    this.idProducts,
     this.idUser,
-    this.image,
-    this.location,
-    this.name,
     this.notes,
+    this.product,
     this.paymentType,
-    this.price,
     this.rentEnd,
     this.rentStart,
-    this.rentalType,
     this.totalFee,
-    this.type,
   });
 
-  String brand;
   DateTime date;
-  String details;
   int idBooking;
   int idProduct;
-  int idProducts;
   int idUser;
-  String image;
-  String location;
-  String name;
   String notes;
-  String paymentType;
-  int price;
+  PaymentType paymentType;
+  Product product;
   DateTime rentEnd;
   DateTime rentStart;
-  String rentalType;
+  int reviewed;
   String totalFee;
-  String type;
-
+  String get paymentTypeStr => getTypeStr(paymentType);
   factory Book.fromJson(Map<String, dynamic> json) => Book(
-        brand: json["brand"],
         date: DateTime.parse(json["date"]),
-        details: json["details"],
         idBooking: json["id_booking"],
         idProduct: json["id_product"],
-        idProducts: json["id_products"],
         idUser: json["id_user"],
-        image: json["image"],
-        location: json["location"],
-        name: json["name"],
         notes: json["notes"],
-        paymentType: json["payment_type"],
-        price: json["price"],
+        paymentType: getType(json["payment_type"]),
         rentEnd: DateTime.parse(json["rent_end"]),
         rentStart: DateTime.parse(json["rent_start"]),
-        rentalType: json["rental_type"],
         totalFee: json["total_fee"],
-        type: json["type"],
+        product: Product.fromJson(json["product"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "brand": brand,
         "date":
             "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
-        "details": details,
         "id_booking": idBooking,
         "id_product": idProduct,
-        "id_products": idProducts,
         "id_user": idUser,
-        "image": image,
-        "location": location,
-        "name": name,
+        // "product": product.toJson(),
         "notes": notes,
-        "payment_type": paymentType,
-        "price": price,
+        "payment_type": getTypeStr(paymentType),
         "rent_end":
             "${rentEnd.year.toString().padLeft(4, '0')}-${rentEnd.month.toString().padLeft(2, '0')}-${rentEnd.day.toString().padLeft(2, '0')}",
         "rent_start":
             "${rentStart.year.toString().padLeft(4, '0')}-${rentStart.month.toString().padLeft(2, '0')}-${rentStart.day.toString().padLeft(2, '0')}",
-        "rental_type": rentalType,
         "total_fee": totalFee,
-        "type": type,
       };
 }
+
+PaymentType getType(String typeStr) {
+  return PaymentType.values.firstWhere((e) => getTypeStr(e) == typeStr);
+}
+
+String getTypeStr(PaymentType type) {
+  return type.toString().split(".").last;
+}
+
+enum PaymentType { DANA, OVO, SPAY, MBANKING }
