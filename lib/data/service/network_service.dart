@@ -29,7 +29,7 @@ class NetworkService extends BaseService {
   NetworkService._internal();
   static final _singleton = NetworkService._internal();
   factory NetworkService() => _singleton;
-  static const String BASEURL = "http://192.168.43.150";
+  static const String BASEURL = "http://192.168.1.6:80";
 
   final Dio _dio = Dio(BaseOptions(
     baseUrl: BASEURL,
